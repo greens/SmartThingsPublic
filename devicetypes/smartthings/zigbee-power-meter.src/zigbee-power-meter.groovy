@@ -18,6 +18,7 @@ metadata {
         capability "Refresh"
         capability "Health Check"
         capability "Sensor"
+        capability "Configuration"
 
         fingerprint profileId: "0104", deviceId:"0053", inClusters: "0000, 0003, 0004, 0B04, 0702", outClusters: "0019", manufacturer: "", model: "E240-KR080Z0-HA", deviceJoinName: "Smart Sub-meter(CT Type)"
         
