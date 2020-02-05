@@ -409,8 +409,7 @@ private def handleBatteryAlarmReport(cmd) {
 	def map = null
 	switch (cmd.zwaveAlarmEvent) {
 		case 0x01: //power has been applied, check if the battery level updated
-			runIn(1, setQueryBattery)
-			result << "delay 1200"
+			runIn(1, setQueryBattery, [overwrite: true, forceForLocallyExecuting: true])
 			result << response(secure(zwave.batteryV1.batteryGet()))
 			break;
 		case 0x0A:
@@ -544,7 +543,7 @@ def zwaveEvent(physicalgraph.zwave.commands.batteryv1.BatteryReport cmd) {
 	}
 	state.lastbatt = now()
 	state.queryBattery = false
-	unschedule("setQueryBattery")
+	unschedule("setQueryBattery", [forceForLocallyExecuting: true])
 	if (cmd.batteryLevel == 0 && device.latestValue("battery") > 20) {
 		// Danalock reports 00 when batteries are changed. We do not know what is the real level at this point.
 		// We will ignore this level to mimic normal operation of the device (battery level is refreshed only when motor is operating)
@@ -698,5 +697,13 @@ private Boolean secondsPast(timestamp, seconds) {
 
 private setQueryBattery() {
 	state.queryBattery = true
+	runIn(1, queryBattery, [overwrite: true, forceForLocallyExecuting: true])
+}
+
+private queryBattery() {
+	if (state.queryBattery) {
+		runIn(10, queryBattery, [overwrite: true, forceForLocallyExecuting: true])
+		response(secure(zwave.batteryV1.batteryGet()))
+	}
 }
 
